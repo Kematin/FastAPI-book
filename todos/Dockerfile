@@ -1,4 +1,4 @@
-FROM PYTHON:3.10
+FROM python:3.10
 # Set working directory to /usr/src/app
 WORKDIR /usr/src/app
 # Copy the contents of the current local directory into the container's working directory
