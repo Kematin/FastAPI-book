@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Path
-from models import TodoItem
+from models import Todo, TodoItems
 
 todo_router = APIRouter()
 todo_list = list()
@@ -7,12 +7,12 @@ todo_list = list()
 
 # arg todo get by request body
 @todo_router.post("/todo")
-async def add_task(todo: TodoItem):
+async def add_task(todo: Todo):
     todo_list.append(todo)
     return {"message": f"Add {todo}"}
 
 
-@todo_router.get("/todo")
+@todo_router.get("/todo", response_model=TodoItems)
 async def retrieve_tasks() -> dict:
     return {"tasks": todo_list}
 
@@ -29,7 +29,7 @@ async def retrieve_single_task(todo_id:
 
 
 @todo_router.put("/todo/{todo_id}")
-async def change_task(todo_data: TodoItem, todo_id:
+async def change_task(todo_data: Todo, todo_id:
                       int = Path(..., title="The ID of the task to change")) -> dict:
     for todo in todo_list:
         if todo_id == todo.id:
