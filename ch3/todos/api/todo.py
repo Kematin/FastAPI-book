@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, HTTPException, status
 from models import Todo, TodoItems
 
 todo_router = APIRouter()
@@ -6,7 +6,7 @@ todo_list = list()
 
 
 # arg todo get by request body
-@todo_router.post("/todo")
+@todo_router.post("/todo", status_code=201)
 async def add_task(todo: Todo):
     todo_list.append(todo)
     return {"message": f"Add {todo}"}
@@ -25,10 +25,13 @@ async def retrieve_single_task(todo_id:
         if todo.id == todo_id:
             return {"task": todo}
     else:
-        return {"message": f"Task with id {todo_id} not found."}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {todo_id} not found."
+        )
 
 
-@todo_router.put("/todo/{todo_id}")
+@todo_router.put("/todo/{todo_id}", status_code=201)
 async def change_task(todo_data: Todo, todo_id:
                       int = Path(..., title="The ID of the task to change")) -> dict:
     for todo in todo_list:
@@ -36,7 +39,10 @@ async def change_task(todo_data: Todo, todo_id:
             todo.item = todo_data.item
             return {"message": f"Update {todo_data}"}
     else:
-        return {"message": f"Task with id {todo_id} not found."}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {todo_id} not found."
+        )
 
 
 @todo_router.delete("/todo/{todo_id}")
@@ -48,4 +54,7 @@ async def delete_task(todo_id:
             todo_list.pop(index)
             return {"message": f"Delete {todo}"}
     else:
-        return {"message": f"Task with id {todo_id} not found"}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task with id {todo_id} not found."
+        )
