@@ -1,29 +1,42 @@
-from fastapi import APIRouter, Path, HTTPException, status
+from fastapi import APIRouter, Path, HTTPException, status, \
+    Request, Depends
+from fastapi.templating import Jinja2Templates
 from models import Todo, TodoItems
 
 todo_router = APIRouter()
 todo_list = list()
+templates = Jinja2Templates(directory="../templates/")
 
 
 # arg todo get by request body
 @todo_router.post("/todo", status_code=201)
-async def add_task(todo: Todo):
+async def add_task(request: Request, todo: Todo = Depends(Todo.as_form)):
+    todo.id = len(todo_list) + 1
     todo_list.append(todo)
-    return {"message": f"Add {todo}"}
+    return templates.TemplateResponse("todo.html", {
+        "request": request,
+        "todos": todo_list
+    })
 
 
 @todo_router.get("/todo", response_model=TodoItems)
-async def retrieve_tasks() -> dict:
-    return {"tasks": todo_list}
+async def retrieve_tasks(request: Request) -> dict:
+    return templates.TemplateResponse("todo.html", {
+        "request": request,
+        "todo_list": todo_list
+    })
 
 
 # server get todo_id by route parameter
 @todo_router.get("/todo/{todo_id}")
-async def retrieve_single_task(todo_id:
+async def retrieve_single_task(request: Request, todo_id:
                                int = Path(..., title="The ID of the task to retrieve.")) -> dict:
     for todo in todo_list:
         if todo.id == todo_id:
-            return {"task": todo}
+            return templates.TemplateResponse("todo.html", {
+                "request": request,
+                "todo": todo
+            })
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
