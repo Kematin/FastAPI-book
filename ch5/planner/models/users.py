@@ -7,7 +7,7 @@ class User(BaseModel):
     username: str
     password: str
     email: EmailStr
-    events: Optional[List[Event]]
+    events: Optional[List[Event]] = None
 
     class Config:
         json_schema_extra = {
