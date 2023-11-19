@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body, HTTPException, status, Request
+from fastapi import APIRouter, Depends, Body, HTTPException, status
 from sqlalchemy import select
 from database.connection import get_session
 from models.events import Event, EventUpdate
