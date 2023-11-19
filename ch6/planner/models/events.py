@@ -1,5 +1,6 @@
 from sqlmodel import JSON, SQLModel, Field, Column
 from typing import List, Optional
+from pydantic import BaseModel
 
 
 class Event(SQLModel, table=True):
@@ -12,7 +13,7 @@ class Event(SQLModel, table=True):
 
     class Config:
         arbitrary_types_allowed = True
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "title": "FastApi book",
                 "description": "Book include FastApi content",
@@ -31,7 +32,7 @@ class EventUpdate(SQLModel):
     tags: Optional[List[str]]
 
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "title": "FastApi book v.2",
                 "description": "Book include new version FastApi content",
