@@ -17,7 +17,7 @@ class User(Document):
         schema_extra = {
             "example": {
                 "username": "kematin",
-                "password": "$2b$12$mF/lx2lrr9REIfymD574hOIhzqRq9I9Q0dJbJlDNpJlh.gtm544d6",
+                "password": "strong!!!",
                 "email": "fastapi@google.com",
                 "events": []
             }
