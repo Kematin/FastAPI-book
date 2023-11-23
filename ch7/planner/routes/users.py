@@ -9,7 +9,7 @@ from auth.jwt_handler import create_access_token
 
 # DB, models
 from database.connection import Database
-from models.users import User, UserSignIn
+from models.users import User, TokenResponse
 
 # Other
 from typing import List
@@ -34,8 +34,8 @@ async def sign_new_user(user: User) -> dict:
     return {"message": "User successfully registered!"}
 
 
-@user_router.post("/signin")
-async def sign_user(user: OAuth2PasswordRequestForm = Depends()) -> dict:
+@user_router.post("/signin", response_model=TokenResponse)
+async def sign_user(user: OAuth2PasswordRequestForm = Depends()) -> TokenResponse:
     user_exist = (await User.find_one(User.email == user.username)) or \
         (await User.find_one(User.username == user.username))
     if user_exist is None:
@@ -48,8 +48,11 @@ async def sign_user(user: OAuth2PasswordRequestForm = Depends()) -> dict:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Wrong credentials passed."
         )
-
-    return {"message": "User signed in successfully."}
+    access_token = create_access_token(user_exist.email)
+    return {
+        "access_token": access_token,
+        "token_type": "Bearer"
+    }
 
 
 @user_router.delete("/{id}")

@@ -17,21 +17,13 @@ class User(Document):
         schema_extra = {
             "example": {
                 "username": "kematin",
-                "password": "strong!!!",
+                "password": "$2b$12$mF/lx2lrr9REIfymD574hOIhzqRq9I9Q0dJbJlDNpJlh.gtm544d6",
                 "email": "fastapi@google.com",
                 "events": []
             }
         }
 
 
-class UserSignIn(BaseModel):
-    email: EmailStr
-    password: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "email": "fastapi@google.com",
-                "password": "strong!!!",
-            }
-        }
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str

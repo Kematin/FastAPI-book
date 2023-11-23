@@ -1,10 +1,13 @@
 # FastAPI, MongoDB
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Depends
 from beanie import PydanticObjectId
 
 # DB, Models
 from database.connection import Database
 from models.events import Event, EventUpdate
+
+# AUTH
+from auth.authenticate import authenticate
 
 # Other
 from typing import List
@@ -32,13 +35,14 @@ async def retrieve_single_event(id: PydanticObjectId) -> Event:
 
 
 @event_router.post("/new")
-async def create_event(new_event: Event = Body(...)) -> dict:
+async def create_event(new_event: Event, user: str = Depends(authenticate)) -> dict:
+    new_event.creator = user
     await event_database.save(new_event)
     return {"message": "Event created successfully."}
 
 
 @event_router.delete("/{id}")
-async def delete_event(id: PydanticObjectId) -> dict:
+async def delete_event(id: PydanticObjectId, user: str = Depends(authenticate)) -> dict:
     event = await event_database.delete(id)
     if event:
         return {"message": "Event deleted successfully."}
@@ -50,7 +54,7 @@ async def delete_event(id: PydanticObjectId) -> dict:
 
 
 @event_router.delete("/")
-async def delete_all_events() -> dict:
+async def delete_all_events(user: str = Depends(authenticate)) -> dict:
     events = await event_database.get_all()
     for event in events:
         await event_database.delete(event.id)
@@ -59,7 +63,8 @@ async def delete_all_events() -> dict:
 
 
 @event_router.put("/edit/{id}", response_model=Event)
-async def update_event(id: PydanticObjectId, new_event: EventUpdate) -> Event:
+async def update_event(id: PydanticObjectId, new_event: EventUpdate,
+                       user: str = Depends(authenticate)) -> Event:
     updated_event = await event_database.update(id, new_event)
     if updated_event:
         return updated_event

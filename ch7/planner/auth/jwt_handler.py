@@ -1,6 +1,6 @@
 # FastAPI, jwt libs
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
+import jwt
 
 # settings
 from database.connection import Settings
@@ -25,7 +25,7 @@ def create_access_token(user: str) -> str:
 def verify_access_token(token: str) -> dict:
     try:
         data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        expire = data.expires
+        expire = data.get("expires")
 
         if expire is None:
             raise HTTPException(
@@ -40,7 +40,7 @@ def verify_access_token(token: str) -> dict:
 
         return data
 
-    except JWTError:
+    except jwt.exceptions.InvalidSignatureError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid token."
