@@ -2,6 +2,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 # DB, settings
 from database.connection import Settings
@@ -11,16 +12,17 @@ from routes.users import user_router
 from routes.events import event_router
 
 
+# Lifespan
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await Settings().initialize_database()
+    yield
+
+
 # Routes
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.include_router(user_router, prefix="/user")
 app.include_router(event_router, prefix="/event")
-
-
-# DB
-@app.on_event("startup")
-async def start_app():
-    await Settings().initialize_database()
 
 
 # CORS
